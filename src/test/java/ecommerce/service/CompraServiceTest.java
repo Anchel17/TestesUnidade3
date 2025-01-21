@@ -1,6 +1,7 @@
 package ecommerce.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -55,7 +56,7 @@ public class CompraServiceTest {
         var cliente = criarCliente(TipoCliente.BRONZE, 1L);
         
         when(clienteService.buscarPorId(Mockito.anyLong())).thenReturn(cliente);
-        when(carrinhoService.buscarPorCarrinhoIdEClienteId(Mockito.anyLong(), Mockito.any(Cliente.class))).thenReturn(criarCarrinhoDeCompras(cliente, 1L));
+        when(carrinhoService.buscarPorCarrinhoIdEClienteId(Mockito.anyLong(), Mockito.any(Cliente.class))).thenReturn(criarCarrinhoDeCompras(cliente, 1L, 4, BigDecimal.valueOf(300)));
         when(estoqueSimulado.verificarDisponibilidade(Mockito.anyList(), Mockito.anyList())).thenReturn(new DisponibilidadeDTO(true, List.of()));
         when(pagamentoSimulado.autorizarPagamento(Mockito.anyLong(), Mockito.anyDouble())).thenReturn(new PagamentoDTO(true, 1L));
         when(estoqueSimulado.darBaixa(Mockito.anyList(), Mockito.anyList())).thenReturn(new EstoqueBaixaDTO(true));
@@ -65,6 +66,99 @@ public class CompraServiceTest {
         assertTrue(compra.sucesso());
         assertEquals(1L, compra.transacaoPagamentoId());
         assertEquals("Compra finalizada com sucesso.", compra.mensagem());
+    }
+    
+    @Test
+    void finalizarCompra_compraComDescontroClientePrata() {
+        var cliente = criarCliente(TipoCliente.PRATA, 1L);
+        
+        when(clienteService.buscarPorId(Mockito.anyLong())).thenReturn(cliente);
+        when(carrinhoService.buscarPorCarrinhoIdEClienteId(Mockito.anyLong(), Mockito.any(Cliente.class))).thenReturn(criarCarrinhoDeCompras(cliente, 1L, 5, BigDecimal.valueOf(500)));
+        when(estoqueSimulado.verificarDisponibilidade(Mockito.anyList(), Mockito.anyList())).thenReturn(new DisponibilidadeDTO(true, List.of()));
+        when(pagamentoSimulado.autorizarPagamento(Mockito.anyLong(), Mockito.anyDouble())).thenReturn(new PagamentoDTO(true, 1L));
+        when(estoqueSimulado.darBaixa(Mockito.anyList(), Mockito.anyList())).thenReturn(new EstoqueBaixaDTO(true));
+        
+        var compra = compraService.finalizarCompra(1L, 1L);
+        
+        assertTrue(compra.sucesso());
+        assertEquals(1L, compra.transacaoPagamentoId());
+        assertEquals("Compra finalizada com sucesso.", compra.mensagem());
+    }
+    
+    @Test
+    void finalizarCompra_compraComDescontroClientePrataProdutoComPeso50() {
+        var cliente = criarCliente(TipoCliente.PRATA, 1L);
+        
+        when(clienteService.buscarPorId(Mockito.anyLong())).thenReturn(cliente);
+        when(carrinhoService.buscarPorCarrinhoIdEClienteId(Mockito.anyLong(), Mockito.any(Cliente.class))).thenReturn(criarCarrinhoDeCompras(cliente, 1L, 50, BigDecimal.valueOf(500)));
+        when(estoqueSimulado.verificarDisponibilidade(Mockito.anyList(), Mockito.anyList())).thenReturn(new DisponibilidadeDTO(true, List.of()));
+        when(pagamentoSimulado.autorizarPagamento(Mockito.anyLong(), Mockito.anyDouble())).thenReturn(new PagamentoDTO(true, 1L));
+        when(estoqueSimulado.darBaixa(Mockito.anyList(), Mockito.anyList())).thenReturn(new EstoqueBaixaDTO(true));
+        
+        var compra = compraService.finalizarCompra(1L, 1L);
+        
+        assertTrue(compra.sucesso());
+        assertEquals(1L, compra.transacaoPagamentoId());
+        assertEquals("Compra finalizada com sucesso.", compra.mensagem());
+    }
+    
+    @Test
+    void finalizarCompra_compraComDescontroClienteOuro() {
+        var cliente = criarCliente(TipoCliente.OURO, 1L);
+        
+        when(clienteService.buscarPorId(Mockito.anyLong())).thenReturn(cliente);
+        when(carrinhoService.buscarPorCarrinhoIdEClienteId(Mockito.anyLong(), Mockito.any(Cliente.class))).thenReturn(criarCarrinhoDeCompras(cliente, 1L, 10, BigDecimal.valueOf(1000)));
+        when(estoqueSimulado.verificarDisponibilidade(Mockito.anyList(), Mockito.anyList())).thenReturn(new DisponibilidadeDTO(true, List.of()));
+        when(pagamentoSimulado.autorizarPagamento(Mockito.anyLong(), Mockito.anyDouble())).thenReturn(new PagamentoDTO(true, 1L));
+        when(estoqueSimulado.darBaixa(Mockito.anyList(), Mockito.anyList())).thenReturn(new EstoqueBaixaDTO(true));
+        
+        var compra = compraService.finalizarCompra(1L, 1L);
+        
+        assertTrue(compra.sucesso());
+        assertEquals(1L, compra.transacaoPagamentoId());
+        assertEquals("Compra finalizada com sucesso.", compra.mensagem());
+    }
+    
+    @Test
+    void testFinalizarCompraItensForaDeEstoqueException() {
+        var cliente = criarCliente(TipoCliente.PRATA, 1L);
+        
+        when(clienteService.buscarPorId(Mockito.anyLong())).thenReturn(cliente);
+        when(carrinhoService.buscarPorCarrinhoIdEClienteId(Mockito.anyLong(), Mockito.any(Cliente.class))).thenReturn(criarCarrinhoDeCompras(cliente, 1L, 50, BigDecimal.valueOf(500)));
+        when(estoqueSimulado.verificarDisponibilidade(Mockito.anyList(), Mockito.anyList())).thenReturn(new DisponibilidadeDTO(false, List.of()));
+        
+        Exception e = assertThrows(IllegalStateException.class, () -> compraService.finalizarCompra(1L, 1L));
+        
+        assertEquals("Itens fora de estoque.", e.getMessage());
+    }
+    
+    @Test
+    void testFinalizarCompraPagamentoNaoAutorizadoException() {
+        var cliente = criarCliente(TipoCliente.PRATA, 1L);
+        
+        when(clienteService.buscarPorId(Mockito.anyLong())).thenReturn(cliente);
+        when(carrinhoService.buscarPorCarrinhoIdEClienteId(Mockito.anyLong(), Mockito.any(Cliente.class))).thenReturn(criarCarrinhoDeCompras(cliente, 1L, 50, BigDecimal.valueOf(500)));
+        when(estoqueSimulado.verificarDisponibilidade(Mockito.anyList(), Mockito.anyList())).thenReturn(new DisponibilidadeDTO(true, List.of()));
+        when(pagamentoSimulado.autorizarPagamento(Mockito.anyLong(), Mockito.anyDouble())).thenReturn(new PagamentoDTO(false, 1L));
+        
+        Exception e = assertThrows(IllegalStateException.class, () -> compraService.finalizarCompra(1L, 1L));
+        
+        assertEquals("Pagamento não autorizado.", e.getMessage());
+    }
+    
+    @Test
+    void testFinalizarCompraErroAoDarBaixaNoEstoqueException() {
+        var cliente = criarCliente(TipoCliente.PRATA, 1L);
+        
+        when(clienteService.buscarPorId(Mockito.anyLong())).thenReturn(cliente);
+        when(carrinhoService.buscarPorCarrinhoIdEClienteId(Mockito.anyLong(), Mockito.any(Cliente.class))).thenReturn(criarCarrinhoDeCompras(cliente, 1L, 50, BigDecimal.valueOf(500)));
+        when(estoqueSimulado.verificarDisponibilidade(Mockito.anyList(), Mockito.anyList())).thenReturn(new DisponibilidadeDTO(true, List.of()));
+        when(pagamentoSimulado.autorizarPagamento(Mockito.anyLong(), Mockito.anyDouble())).thenReturn(new PagamentoDTO(true, 1L));
+        when(estoqueSimulado.darBaixa(Mockito.anyList(), Mockito.anyList())).thenReturn(new EstoqueBaixaDTO(false));
+        
+        Exception e = assertThrows(IllegalStateException.class, () -> compraService.finalizarCompra(1L, 1L));
+        
+        assertEquals("Erro ao dar baixa no estoque.", e.getMessage());
     }
     
     private Cliente criarCliente(TipoCliente tipoCliente, Long idCliente) {
@@ -77,21 +171,22 @@ public class CompraServiceTest {
         return cliente;
     }
     
-    private CarrinhoDeCompras criarCarrinhoDeCompras(Cliente cliente, Long idCarrinho) {
+    private CarrinhoDeCompras criarCarrinhoDeCompras(Cliente cliente, Long idCarrinho, Integer pesoItemCompra, BigDecimal valor) {
         var carrinho = new CarrinhoDeCompras();
         carrinho.setCliente(cliente);
         carrinho.setData(LocalDate.of(2025, 1, 1));
         carrinho.setId(idCarrinho);
-        carrinho.setItens(criarItensCompra(1L));
+        carrinho.setItens(criarItensCompra(1L, pesoItemCompra, valor));
         
         return carrinho;
     }
     
-    private List<ItemCompra> criarItensCompra(Long idItemCompra){
+    private List<ItemCompra> criarItensCompra(Long idItemCompra, Integer peso, BigDecimal valor){
         var itemCompra = new ItemCompra();
         
         itemCompra.setId(idItemCompra);
-        itemCompra.setProduto(criarProduto(1L, "Computador pessoal", "Pc da Xuxa", 4, BigDecimal.valueOf(1000), TipoProduto.ELETRONICO));
+        itemCompra.setProduto(criarProduto(1L, "Computador pessoal", "Pc da Xuxa", peso, valor, TipoProduto.ELETRONICO));
+        itemCompra.setQuantidade(1L);
         
         return List.of(itemCompra);
     }

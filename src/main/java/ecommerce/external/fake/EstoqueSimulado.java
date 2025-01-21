@@ -31,14 +31,14 @@ public class EstoqueSimulado implements IEstoqueExternal {
         var isProdutosDisponiveis = Boolean.FALSE;
         var listaProdutosIndisponiveis = new ArrayList<Long>();
         
-        for(var i = 0; i < produtosIds.size(); i++) {
+        for(var i = 0; i < produtosQuantidades.size(); i++) {
             if(produtosQuantidades.get(i) == 0){
                 listaProdutosIndisponiveis.add(produtosIds.get(i));
             }
         }
         
         if(!produtosIds.isEmpty() && !produtosQuantidades.isEmpty()) {
-            isProdutosDisponiveis = listaProdutosIndisponiveis.size() == produtosIds.size();
+            isProdutosDisponiveis = listaProdutosIndisponiveis.size() != produtosIds.size();
         }
         
         return new DisponibilidadeDTO(isProdutosDisponiveis, listaProdutosIndisponiveis);

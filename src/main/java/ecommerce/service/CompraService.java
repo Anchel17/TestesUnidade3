@@ -82,17 +82,17 @@ public class CompraService {
 	    
 	    calcularFrete(frete, itens);
 	    
-	    custoTotal.add(somarValoresDosProdutos(itens));
+	    custoTotal = custoTotal.add(somarValoresDosProdutos(itens));
 	    //tipo Bronze pagam o valor integral.
 	    if(!TipoCliente.BRONZE.equals(cliente.getTipo())){
 	        aplicarDescontoNoFrete(frete, cliente);
 	    }
 	    
-	    if(custoTotal.compareTo(BigDecimal.valueOf(500)) > 0) {
+	    if(custoTotal.compareTo(BigDecimal.valueOf(500)) >= 0) {
 	        aplicarDescontoNoCustoTotal(custoTotal);
 	    }
 	    
-	    custoTotal.add(BigDecimal.valueOf(frete.get()));
+	    custoTotal = custoTotal.add(BigDecimal.valueOf(frete.get()));
 	    
 		return custoTotal;
 	}
@@ -120,11 +120,11 @@ public class CompraService {
 	}
 	
 	private BigDecimal somarValoresDosProdutos(List<ItemCompra> itens) {
-	    var soma = BigDecimal.ZERO;
+	    var soma = new AtomicInteger(0);
 	    
-	    itens.forEach(item -> soma.add(item.getProduto().getPreco()));
+	    itens.forEach(item -> soma.addAndGet(item.getProduto().getPreco().intValue()));
 	    
-	    return soma;
+	    return new BigDecimal(soma.get());
 	}
 	
 	private void aplicarDescontoNoFrete(AtomicInteger frete, Cliente cliente) {

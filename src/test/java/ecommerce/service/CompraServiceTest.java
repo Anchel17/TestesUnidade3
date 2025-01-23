@@ -161,6 +161,7 @@ public class CompraServiceTest {
         assertEquals("Erro ao dar baixa no estoque.", e.getMessage());
     }
     
+    
     private Cliente criarCliente(TipoCliente tipoCliente, Long idCliente) {
         var cliente = new Cliente();
         cliente.setId(idCliente);

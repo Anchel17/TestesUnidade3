@@ -98,7 +98,7 @@ public class CompraService {
 	}
 	
 	private void calcularFrete(AtomicInteger frete, List<ItemCompra> itens) {
-//	     até 5 kg não é cobrado frete;
+		//até 5 kg não é cobrado frete;
         itens.forEach(item -> {
             var produto = item.getProduto();
             // acima de 5 kg e abaixo de 10 kg é cobrado R$ 2,00 por kg;

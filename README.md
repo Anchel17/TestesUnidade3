@@ -92,8 +92,8 @@ Certifique-se de que o projeto está configurado corretamente no arquivo `pom.xm
 ![Todos os mutantes sobreviventes](<doc-images/x-men.jpg>)
 
 #### Primeiros mutantes sobreviventes
-![Primeiros mutantes sobreviventes devido a utilização de mock para chamada de função, fazendo com que a exceção não seja lançada.](<doc-images/xavier-&-magneto.jpg>)<br/>
-Primeiros mutantes sobreviventes devido a utilização de mock da função `verificarDisponibilidade`, fazendo com que as exceções validadas na função real não seja lançada.
+![Os primeiros mutantes sobreviveram porque os testes unitários não verificam o comportamento real do método, visto que está sendo simulado (utilizando Mocks) o resultado do método ``verificarDisponibilidade``. Isso faz com que quaisquer problemas nas lógicas de construção das listas ``produtosIds`` e ``produtosQtds`` passem despercebidos.](<doc-images/xavier-&-magneto.jpg>)<br/>
+Os primeiros mutantes sobreviveram porque os testes unitários não verificam o comportamento real do método, visto que está sendo simulado (utilizando Mocks) o resultado do método ``verificarDisponibilidade``. Isso faz com que quaisquer problemas nas lógicas de construção das listas ``produtosIds`` e ``produtosQtds`` passem despercebidos. 
 
 #### Terceiro mutante sobrevivente
 ![Terceiro mutante sobrevivente que não interfere no fluxo de finalização de compra, logo os testes unitários não falham independente de sua execução.](<doc-images/wolverine.jpg>) <br/>

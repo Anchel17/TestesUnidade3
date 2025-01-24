@@ -89,7 +89,7 @@ public class CompraService {
 	    }
 	    
 	    if(custoTotal.compareTo(BigDecimal.valueOf(500)) >= 0) {
-	        aplicarDescontoNoCustoTotal(custoTotal);
+	        custoTotal = custoTotal.subtract(aplicarDescontoNoCustoTotal(custoTotal));
 	    }
 	    
 	    custoTotal = custoTotal.add(BigDecimal.valueOf(frete.get()));
@@ -143,12 +143,11 @@ public class CompraService {
      Carrinhos de compras que custam mais de R$ 500,00 recebem um desconto de 10%;
      aqueles que custam mais de R$ 1000,00 recebem 20% de desconto. 
     */
-	private void aplicarDescontoNoCustoTotal(BigDecimal custoTotal) {
+	private BigDecimal aplicarDescontoNoCustoTotal(BigDecimal custoTotal) {
 	    if(custoTotal.compareTo(BigDecimal.valueOf(1000)) < 0) {
-	        custoTotal = custoTotal.multiply(BigDecimal.valueOf(0.1));
-	        return;
+	        return custoTotal.multiply(BigDecimal.valueOf(0.1));
 	    }
 	    
-	    custoTotal = custoTotal.multiply(BigDecimal.valueOf(0.2));
+	    return custoTotal.multiply(BigDecimal.valueOf(0.2));
 	}
 }

@@ -161,6 +161,45 @@ public class CompraServiceTest {
         assertEquals("Erro ao dar baixa no estoque.", e.getMessage());
     }
     
+    @Test
+    void testCalcularCustoTotalSemAplicarDesconto() {
+        var cliente = criarCliente(TipoCliente.BRONZE, 1L);
+        var carrinhoDeCompras = criarCarrinhoDeCompras(cliente, 1L, 5, BigDecimal.valueOf(499));
+        
+        var custoTotal = compraService.calcularCustoTotal(carrinhoDeCompras);
+        
+        assertEquals(BigDecimal.valueOf(509), custoTotal);
+    }
+    
+    @Test
+    void testCalcularCustoTotalComItem50Kg() {
+        var cliente = criarCliente(TipoCliente.PRATA, 1L);
+        var carrinhoDeCompras = criarCarrinhoDeCompras(cliente, 1L, 50, BigDecimal.valueOf(500));
+        
+        var custoTotal = compraService.calcularCustoTotal(carrinhoDeCompras);
+        
+        assertEquals(BigDecimal.valueOf(625.0), custoTotal);
+    }
+    
+    @Test
+    void testCalcularCustoTotalComItem10KgClienteBronze() {
+        var cliente = criarCliente(TipoCliente.BRONZE, 1L);
+        var carrinhoDeCompras = criarCarrinhoDeCompras(cliente, 1L, 10, BigDecimal.valueOf(500));
+        
+        var custoTotal = compraService.calcularCustoTotal(carrinhoDeCompras);
+        
+        assertEquals(BigDecimal.valueOf(490.0), custoTotal);
+    }
+    
+    @Test
+    void testCalcularCustoTotalComItem10KgClienteOuro() {
+        var cliente = criarCliente(TipoCliente.OURO, 1L);
+        var carrinhoDeCompras = criarCarrinhoDeCompras(cliente, 1L, 10, BigDecimal.valueOf(1000));
+        
+        var custoTotal = compraService.calcularCustoTotal(carrinhoDeCompras);
+        
+        assertEquals(BigDecimal.valueOf(800.0), custoTotal);
+    }
     
     private Cliente criarCliente(TipoCliente tipoCliente, Long idCliente) {
         var cliente = new Cliente();
